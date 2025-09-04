@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    from PIL import Image
+    import matplotlib.pyplot as plt
+    import matplotlib.animation as animation
+    import numpy as np
+
+    # Caminho da sua imagem (coloque o PNG do Malbec na mesma pasta do script)
+    img_path = "malbec.png"
+    img = Image.open(img_path).convert("RGBA")
+
+    # Criar figura
+    fig, ax = plt.subplots(figsize=(6,6))
+    ax.axis("off")
+    im = ax.imshow(img, alpha=1)
+
+    # Função que simula o giro lateral
+    def update(frame):
+    scale = 1 - 0.3 * np.abs(np.sin(np.radians(frame))) # efeito de estreitamento lateral
+    new_img = img.resize((int(img.width*scale), img.height), Image.LANCZOS)
+
+    # Criar fundo preto luxuoso
+    canvas = Image.new("RGBA", (img.width, img.height), (0,0,0,255))
+    canvas.paste(new_img, ((canvas.width - new_img.width)//2, 0), new_img)
+
+    im.set_data(canvas)
+    return [im]
+
+    # Criar animação
+    ani = animation.FuncAnimation(fig, update, frames=np.arange(0, 360, 2), interval=100)
+
+    # Salvar vídeo
+    ani.save("malbec_girando.mp4", writer="ffmpeg", fps=20)
+    print("Vídeo salvo como malbec_girando.mp4")
+</body>
+
+</html>
